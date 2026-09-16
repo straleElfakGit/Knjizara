@@ -26,16 +26,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.knjizara.features.book_management.dto.BookDto
+import com.example.knjizara.features.book_management.dto.BookWithDescriptionDto
 
 @Composable
 fun BookDetailsDialog(
-    book: BookDto,
+    bookItem: BookWithDescriptionDto,
+    isLoadingDescription: Boolean,
     onDismiss: () -> Unit,
     onBuyClick: () -> Unit,
     isBuying: Boolean = false,
     buyBookMessage: String?,
     modifier: Modifier = Modifier
 ) {
+    val book = bookItem.book
+
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = modifier.fillMaxWidth(),
@@ -62,6 +66,34 @@ fun BookDetailsDialog(
                 BookDetailRow(label = "Godina izdanja", value = book.publishedYear.toString())
                 BookDetailRow(label = "Na stanju", value = book.availableCopies.toString())
                 BookDetailRow(label = "Cena", value = formatPrice(book.price))
+
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider()
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Opis",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                if (isLoadingDescription) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(60.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    }
+                } else {
+                    Text(
+                        text = bookItem.description ?: "Opis nije dostupan.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 

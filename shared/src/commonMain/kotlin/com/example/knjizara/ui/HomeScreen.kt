@@ -30,11 +30,13 @@ fun HomeScreen(
     onLogout: () -> Unit = {}
 ) {
     val bookList by bookViewModel.bookList.collectAsState()
+    val selectedBook by bookViewModel.selectedBook.collectAsState()
     val bookTitle by bookViewModel.bookTitle.collectAsState()
     val isLoading by bookViewModel.isLoading.collectAsState()
     val error by bookViewModel.error.collectAsState()
     val isByBookLoading by bookViewModel.isBookBuyLoading.collectAsState()
     val buyBookMessage by bookViewModel.buyBookMessage.collectAsState()
+    val isDetailsLoading by bookViewModel.isDetailsLoading.collectAsState()
 
     Column (
         modifier = Modifier
@@ -51,7 +53,7 @@ fun HomeScreen(
         CustomTextField(
             value = bookTitle,
             onValueChange = { bookViewModel.onTitleChange(it) },
-            label = bookTitle
+            label = "Naziv knjige"
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -61,7 +63,7 @@ fun HomeScreen(
                 bookViewModel.searchByTitle(title = bookTitle)
             }
         ) {
-            Text("Pretrazi")
+            Text("Pretraži")
         }
 
         Box(
@@ -82,9 +84,16 @@ fun HomeScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 } else {
-                    BooksList(bookList, isByBookLoading, buyBookMessage) { bookIsbn ->
-                        bookViewModel.byBook(bookIsbn)
-                    }
+                    BooksList(
+                        books = bookList,
+                        selectedBook = selectedBook,
+                        isDetailsLoading = isDetailsLoading,
+                        isBuyBookLoading = isByBookLoading,
+                        onBookClick = { bookViewModel.loadBookDetails(it) },
+                        onDismissDialog = { bookViewModel.clearSelectedBook() },
+                        onByBook = { isbn -> bookViewModel.byBook(isbn) },
+                        buyBookMessage = buyBookMessage
+                    )
                 }
             }
         }

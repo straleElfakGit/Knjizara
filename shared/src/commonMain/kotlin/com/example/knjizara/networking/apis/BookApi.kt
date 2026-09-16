@@ -2,6 +2,7 @@ package com.example.knjizara.networking.apis
 
 import com.example.knjizara.features.book_management.dto.BookDto
 import com.example.knjizara.features.book_management.dto.CreateBookRequest
+import com.example.knjizara.features.book_management.dto.DescriptionResponse
 import com.example.knjizara.features.book_management.dto.PageResponse
 import com.example.knjizara.features.book_management.dto.UpdateBookRequest
 import com.example.knjizara.features.order_management.dto.OrderDto
@@ -27,7 +28,7 @@ class BookApi(private val client: HttpClient) {
         }.body()
     }
 
-    suspend fun findById(id: Long) : Result<BookDto, NetworkError> = safeApiCall {
+    suspend fun findById(id: Long) : Result<DescriptionResponse, NetworkError> = safeApiCall {
         client.get("api/books/$id").body()
     }
 

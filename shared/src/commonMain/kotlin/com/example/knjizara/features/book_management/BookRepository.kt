@@ -3,6 +3,7 @@ package com.example.knjizara.features.book_management
 import com.example.knjizara.networking.apis.BookApi
 import com.example.knjizara.features.book_management.dto.BookDto
 import com.example.knjizara.features.book_management.dto.CreateBookRequest
+import com.example.knjizara.features.book_management.dto.DescriptionResponse
 import com.example.knjizara.features.book_management.dto.PageResponse
 import com.example.knjizara.features.book_management.dto.UpdateBookRequest
 import com.example.knjizara.features.order_management.dto.OrderDto
@@ -19,7 +20,7 @@ class BookRepository (
         sort: String = "title,asc"
     ): Result<PageResponse<BookDto>, NetworkError> = bookApi.findBooks(page, size, sort)
 
-    suspend fun findById(id: Long): Result<BookDto, NetworkError> =
+    suspend fun findById(id: Long): Result<DescriptionResponse, NetworkError> =
         bookApi.findById(id)
 
     suspend fun searchByTitle(title: String): Result<List<BookDto>, NetworkError> =
