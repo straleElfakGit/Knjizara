@@ -6,6 +6,7 @@ import com.example.knjizara.features.auth.RegisterViewModel
 import com.example.knjizara.features.auth.SessionManager
 import com.example.knjizara.features.auth.token_manager.TokenStorage
 import com.example.knjizara.features.auth.token_manager.TokenStorageImpl
+import com.example.knjizara.features.book_management.AdminBookViewModel
 import com.example.knjizara.features.book_management.BookRepository
 import com.example.knjizara.features.book_management.BookViewModel
 import com.example.knjizara.networking.apis.AuthApi
@@ -32,4 +33,5 @@ val sharedModule = module {
     single { BookApi(get()) }
     single { BookRepository(get()) }
     viewModelOf(::BookViewModel)
+    viewModelOf(::AdminBookViewModel)
 }

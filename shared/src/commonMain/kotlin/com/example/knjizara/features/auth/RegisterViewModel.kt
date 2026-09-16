@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.knjizara.features.auth.dto.RegisterUserRequest
 import com.example.knjizara.features.auth.dto.UserDto
-import com.example.knjizara.networking.network_utils.NetworkError
+import com.example.knjizara.networking.apis.alp_error_messages.toRegisterMessage
 import com.example.knjizara.networking.network_utils.onSuccess
 import com.example.knjizara.networking.network_utils.onError
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -67,15 +67,4 @@ class RegisterViewModel(
     }
 
     fun clearError() { _error.value = null }
-}
-
-private fun NetworkError.toRegisterMessage(): String = when (this) {
-    is NetworkError.HttpError -> when (code) {
-        400 -> "Neispravni podaci, proverite unos"
-        409 -> "Email ili JMBG već postoje u sistemu"
-        else -> "Greška, pokušajte ponovo"
-    }
-    NetworkError.NoInternet -> "Proverite internet konekciju"
-    NetworkError.Serialization -> "Greška u odgovoru servera"
-    NetworkError.Unknown -> "Nepoznata greška, pokušajte ponovo"
 }

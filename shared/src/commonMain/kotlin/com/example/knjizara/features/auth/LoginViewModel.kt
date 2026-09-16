@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.knjizara.features.auth.dto.LoginUserRequest
 import com.example.knjizara.features.auth.dto.UserDto
-import com.example.knjizara.networking.network_utils.NetworkError
+import com.example.knjizara.networking.apis.alp_error_messages.toLoginMessage
 import com.example.knjizara.networking.network_utils.onError
 import com.example.knjizara.networking.network_utils.onSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,16 +56,4 @@ class LoginViewModel(
     }
 
     fun clearError() { _error.value = null }
-}
-
-
-private fun NetworkError.toLoginMessage(): String = when (this) {
-    is NetworkError.HttpError -> when (code) {
-        400 -> "Neispravni podaci"
-        401 -> "Pogrešan email ili lozinka"
-        else -> "Greška, pokušajte ponovo"
-    }
-    NetworkError.NoInternet -> "Proverite internet konekciju"
-    NetworkError.Serialization -> "Greška u odgovoru servera"
-    NetworkError.Unknown -> "Nepoznata greška, pokušajte ponovo"
 }

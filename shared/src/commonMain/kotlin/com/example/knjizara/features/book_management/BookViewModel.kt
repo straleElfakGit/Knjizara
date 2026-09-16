@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.example.knjizara.features.book_management.dto.BookWithDescriptionDto
-import com.example.knjizara.networking.network_utils.NetworkError
+import com.example.knjizara.networking.apis.alp_error_messages.toByBookMessage
+import com.example.knjizara.networking.apis.alp_error_messages.toSearchBookByTitleMessage
 import com.example.knjizara.networking.network_utils.onError
 import com.example.knjizara.networking.network_utils.onSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,8 @@ import kotlinx.coroutines.launch
 class BookViewModel(
     private val bookRepository: BookRepository
 ): ViewModel() {
-    private val _bookList: MutableStateFlow<List<BookWithDescriptionDto>> = MutableStateFlow(listOf())
+    private val _bookList: MutableStateFlow<List<BookWithDescriptionDto>> =
+        MutableStateFlow(listOf())
     val bookList: StateFlow<List<BookWithDescriptionDto>> = _bookList.asStateFlow()
 
     private val _selectedBook = MutableStateFlow<BookWithDescriptionDto?>(null)
@@ -39,7 +41,9 @@ class BookViewModel(
     private val _buyBookMessage = MutableStateFlow<String?>(null)
     val buyBookMessage: StateFlow<String?> = _buyBookMessage.asStateFlow()
 
-    fun onTitleChange(value: String) { _bookTitle.value = value }
+    fun onTitleChange(value: String) {
+        _bookTitle.value = value
+    }
 
     fun searchByTitle(title: String) {
 
@@ -66,7 +70,7 @@ class BookViewModel(
     }
 
     fun byBook(isbn: String) {
-        if(isbn.isBlank()) {
+        if (isbn.isBlank()) {
             _error.value = "Unesite naziv knjige"
             return
         }
@@ -102,7 +106,8 @@ class BookViewModel(
                 }
                 .onError { error ->
                     _error.value = error.toByBookMessage()
-                    _buyBookMessage.value = "Nije uspela kupovina knjige."}
+                    _buyBookMessage.value = "Nije uspela kupovina knjige."
+                }
 
             _isBookBuyLoading.value = false
         }
@@ -136,26 +141,7 @@ class BookViewModel(
         _selectedBook.value = null
     }
 
-    fun clearError() { _error.value = null }
-}
-
-private fun NetworkError.toSearchBookByTitleMessage(): String = when (this) {
-    is NetworkError.HttpError -> "Greška, pokušajte ponovo, kod: ${this.code}"
-    NetworkError.NoInternet -> "Proverite internet konekciju"
-    NetworkError.Serialization -> "Greška u odgovoru servera"
-    NetworkError.Unknown -> "Nepoznata greška, pokušajte ponovo"
-}
-
-private fun NetworkError.toByBookMessage(): String = when(this) {
-    is NetworkError.HttpError -> when (code) {
-        402 -> "Knjige koje koštaju više od 1000 DIN ne mogu da se kupe."
-        403 -> "Niste autorizovani da obavite ovu aktivnost"
-        404 -> "Ne postoji knjiga sa ovim ISBN brojem"
-        409 -> "Ova knjiga nije više dostupna"
-        502 -> "Problem sa bankom"
-        else -> "Greška, pokušajte ponovo, kod: ${this.code}"
+    fun clearError() {
+        _error.value = null
     }
-    NetworkError.NoInternet -> "Proverite internet konekciju"
-    NetworkError.Serialization -> "Greška u odgovoru servera"
-    NetworkError.Unknown -> "Nepoznata greška, pokušajte ponovo"
 }
