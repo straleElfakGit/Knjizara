@@ -16,6 +16,7 @@ fun BooksList(
     isBuyBookLoading: Boolean,
     buyBookMessage: String?,
     onBookClick: (BookWithDescriptionDto) -> Unit,
+    isAdmin: Boolean,
     onDismissDialog: () -> Unit,
     onByBook: (String) -> Unit = { }
 ) {
@@ -37,7 +38,7 @@ fun BooksList(
             isLoadingDescription = isDetailsLoading,
             onBuyClick = { onByBook(bookItem.book.isbn) },
             isBuying = isBuyBookLoading,
-            buyBookMessage = buyBookMessage
+            buyBookMessage = buyBookMessage,
         )
     }
 }

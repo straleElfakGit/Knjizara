@@ -11,5 +11,5 @@ data class DescriptionResponse (
     val publishedYear: Int,
     val availableCopies: Int,
     val price: Double,
-    val description: String
+    val description: String?
 )

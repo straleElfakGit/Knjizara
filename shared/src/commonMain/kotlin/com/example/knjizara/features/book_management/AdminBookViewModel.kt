@@ -8,7 +8,9 @@ import kotlinx.coroutines.flow.asStateFlow
 class AdminBookViewModel(
     private val bookRepository: BookRepository
 ): ViewModel() {
+    private val _bookTitleAdd: MutableStateFlow<String> = MutableStateFlow("")
+    val bookTitleAdd: StateFlow<String> = _bookTitleAdd.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    private val _authorAdd: MutableStateFlow<String> = MutableStateFlow("")
+    val authorAdd: StateFlow<String> = _authorAdd.asStateFlow()
 }

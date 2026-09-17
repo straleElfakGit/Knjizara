@@ -1,24 +1,35 @@
 package com.example.knjizara.ui
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.knjizara.features.auth.dto.UserDto
-import com.example.knjizara.features.auth.ui.CustomTextField
+import com.example.knjizara.features.auth.dto.UserRole
 import com.example.knjizara.features.book_management.BookViewModel
-import com.example.knjizara.features.book_management.ui.BooksList
+import com.example.knjizara.features.book_management.ui.BookScreen
+import com.example.knjizara.features.order_management.OrderViewModel
+import com.example.knjizara.features.order_management.ui.OrdersScreen
+import com.example.knjizara.navigation.enums.HomeTab
+import knjizara.shared.generated.resources.Res
+import knjizara.shared.generated.resources.compose_multiplatform
+import knjizara.shared.generated.resources.open_book_icon
+import knjizara.shared.generated.resources.shopping_cart_icon
+import knjizara.shared.generated.resources.user_profile_icon
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 
@@ -27,74 +38,56 @@ import org.koin.core.annotation.KoinExperimentalAPI
 fun HomeScreen(
     user: UserDto,
     bookViewModel: BookViewModel = koinViewModel<BookViewModel> (),
+    orderViewModel: OrderViewModel = koinViewModel<OrderViewModel> (),
     onLogout: () -> Unit = {}
 ) {
-    val bookList by bookViewModel.bookList.collectAsState()
-    val selectedBook by bookViewModel.selectedBook.collectAsState()
-    val bookTitle by bookViewModel.bookTitle.collectAsState()
-    val isLoading by bookViewModel.isLoading.collectAsState()
-    val error by bookViewModel.error.collectAsState()
-    val isByBookLoading by bookViewModel.isBookBuyLoading.collectAsState()
-    val buyBookMessage by bookViewModel.buyBookMessage.collectAsState()
-    val isDetailsLoading by bookViewModel.isDetailsLoading.collectAsState()
+    var selectedTab by rememberSaveable { mutableStateOf(HomeTab.BOOKS) }
 
-    Column (
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Button(
-            onClick = onLogout
-        ) {
-
-            Text("Izloguj se")
-        }
-        Spacer(modifier = Modifier.height(16.dp) )
-
-        CustomTextField(
-            value = bookTitle,
-            onValueChange = { bookViewModel.onTitleChange(it) },
-            label = "Naziv knjige"
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                bookViewModel.searchByTitle(title = bookTitle)
+    Scaffold(
+        bottomBar = {
+            NavigationBar {
+                NavigationBarItem(
+                    selected = selectedTab == HomeTab.BOOKS,
+                    onClick = { selectedTab = HomeTab.BOOKS },
+                    icon = { Icon(
+                        painter = painterResource(Res.drawable.open_book_icon),
+                        contentDescription = HomeTab.BOOKS.label,
+                        modifier = Modifier.size(60.dp)
+                    ) },
+                    label = { Text(HomeTab.BOOKS.label) }
+                )
+                NavigationBarItem(
+                    selected = selectedTab == HomeTab.ORDERS,
+                    onClick = { selectedTab = HomeTab.ORDERS },
+                    icon = { Icon(
+                        painter = painterResource(Res.drawable.shopping_cart_icon),
+                        contentDescription = HomeTab.ORDERS.label,
+                        modifier = Modifier.size(60.dp)
+                    ) },
+                    label = { Text(HomeTab.ORDERS.label) }
+                )
+                NavigationBarItem(
+                    selected = selectedTab == HomeTab.PROFILE,
+                    onClick = { selectedTab = HomeTab.PROFILE },
+                    icon = { Icon(
+                        painter = painterResource(Res.drawable.user_profile_icon),
+                        contentDescription = HomeTab.PROFILE.label,
+                        modifier = Modifier.size(60.dp)
+                    ) },
+                    label = { Text(HomeTab.PROFILE.label) }
+                )
             }
-        ) {
-            Text("Pretraži")
         }
-
-        Box(
+    ) { innerPadding ->
+        Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding)
         ) {
-            if(isLoading) {
-                Box(modifier = Modifier
-                    .fillMaxSize(),
-                    contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            } else {
-                if (error != null) {
-                    Text(
-                        text = error!!,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                } else {
-                    BooksList(
-                        books = bookList,
-                        selectedBook = selectedBook,
-                        isDetailsLoading = isDetailsLoading,
-                        isBuyBookLoading = isByBookLoading,
-                        onBookClick = { bookViewModel.loadBookDetails(it) },
-                        onDismissDialog = { bookViewModel.clearSelectedBook() },
-                        onByBook = { isbn -> bookViewModel.byBook(isbn) },
-                        buyBookMessage = buyBookMessage
-                    )
-                }
+            when (selectedTab) {
+                HomeTab.BOOKS -> BookScreen(bookViewModel, user.role == UserRole.ADMIN)
+                HomeTab.ORDERS -> OrdersScreen(viewModel = orderViewModel, user.role == UserRole.ADMIN)
+                HomeTab.PROFILE -> ProfileScreen(user = user, onLogout = onLogout)
             }
         }
     }

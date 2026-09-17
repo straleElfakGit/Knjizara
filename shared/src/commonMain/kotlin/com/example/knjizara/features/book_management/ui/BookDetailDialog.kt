@@ -36,6 +36,7 @@ fun BookDetailsDialog(
     onBuyClick: () -> Unit,
     isBuying: Boolean = false,
     buyBookMessage: String?,
+    onCloseDialog: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val book = bookItem.book

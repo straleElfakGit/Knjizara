@@ -12,11 +12,15 @@ import com.example.knjizara.networking.network_utils.NetworkError
 import com.example.knjizara.networking.network_utils.Result
 import com.example.knjizara.networking.network_utils.onSuccess
 import com.example.knjizara.networking.network_utils.map
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.auth.authProvider
+import io.ktor.client.plugins.auth.providers.BearerAuthProvider
 
 class AuthRepository(
     private val authApi: AuthApi,
     private val tokenStorage: TokenStorage,
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    private val client: HttpClient
 ) {
     suspend fun register(request: RegisterUserRequest): Result<UserDto, NetworkError> {
         val registerResult = authApi.register(request)
@@ -33,6 +37,7 @@ class AuthRepository(
                 val expiresAt = (Clock.System.now() + 24.hours).toEpochMilliseconds()
                 tokenStorage.saveSession(response.token, expiresAt, response.user)
                 sessionManager.onLoginSuccess(response.user)
+                clearBearerCache()
             }
             .map { it.user }
     }
@@ -40,6 +45,7 @@ class AuthRepository(
     suspend fun logout() {
         tokenStorage.clearSession()
         sessionManager.logout()
+        clearBearerCache()
     }
 
     suspend fun restoreSession(): Boolean {
@@ -53,5 +59,9 @@ class AuthRepository(
             tokenStorage.clearSession()
         }
         return isValid
+    }
+
+    private fun clearBearerCache() {
+        client.authProvider<BearerAuthProvider>()?.clearToken()
     }
 }

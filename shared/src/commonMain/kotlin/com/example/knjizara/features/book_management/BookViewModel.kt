@@ -4,7 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.example.knjizara.features.book_management.dto.BookWithDescriptionDto
+import com.example.knjizara.features.order_management.OrderStore
 import com.example.knjizara.networking.apis.alp_error_messages.toByBookMessage
+import com.example.knjizara.networking.apis.alp_error_messages.toFindBooksMessage
+import com.example.knjizara.networking.apis.alp_error_messages.toFindByIdMessage
 import com.example.knjizara.networking.apis.alp_error_messages.toSearchBookByTitleMessage
 import com.example.knjizara.networking.network_utils.onError
 import com.example.knjizara.networking.network_utils.onSuccess
@@ -14,7 +17,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class BookViewModel(
-    private val bookRepository: BookRepository
+    private val bookRepository: BookRepository,
+    private val orderStore: OrderStore
 ): ViewModel() {
     private val _bookList: MutableStateFlow<List<BookWithDescriptionDto>> =
         MutableStateFlow(listOf())
@@ -81,7 +85,9 @@ class BookViewModel(
             clearError()
 
             bookRepository.buyBook(isbn)
-                .onSuccess {
+                .onSuccess { order->
+                    orderStore.addOrder(order)
+
                     _bookList.value = _bookList.value.map { item ->
                         if (item.book.isbn == isbn) {
                             val updatedBook = item.book.copy(
@@ -106,11 +112,15 @@ class BookViewModel(
                 }
                 .onError { error ->
                     _error.value = error.toByBookMessage()
-                    _buyBookMessage.value = "Nije uspela kupovina knjige."
+                    _buyBookMessage.value = "Nije uspela kupovina knjige: ${_error.value}"
                 }
 
             _isBookBuyLoading.value = false
         }
+    }
+
+    fun clearBuyBookMessage() {
+        _buyBookMessage.value = null
     }
 
     fun loadBookDetails(bookItem: BookWithDescriptionDto) {
@@ -131,9 +141,29 @@ class BookViewModel(
                         if (item.book.id == bookItem.book.id) updatedBookWithDesc else item
                     }
                 }
-                .onError { error -> _error.value = error.toByBookMessage() }
+                .onError { error -> _error.value = error.toFindByIdMessage() }
 
             _isDetailsLoading.value = false
+        }
+    }
+
+    fun findBooks(page: Int = 0,
+                  size: Int = 20,
+                  sort: String = "title,asc") {
+
+        viewModelScope.launch {
+
+            _isLoading.value = true
+            clearError()
+
+            bookRepository.findBooks(page, size, sort)
+                .onSuccess { response ->
+                    _bookList.value = response.content.map { BookWithDescriptionDto(book = it) }
+                    Logger.d("Broj knjiga: ${_bookList.value.size}")
+                }
+                .onError { error -> _error.value = error.toFindBooksMessage() }
+
+            _isLoading.value = false
         }
     }
 

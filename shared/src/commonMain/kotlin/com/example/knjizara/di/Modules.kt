@@ -9,8 +9,12 @@ import com.example.knjizara.features.auth.token_manager.TokenStorageImpl
 import com.example.knjizara.features.book_management.AdminBookViewModel
 import com.example.knjizara.features.book_management.BookRepository
 import com.example.knjizara.features.book_management.BookViewModel
+import com.example.knjizara.features.order_management.OrderRepository
+import com.example.knjizara.features.order_management.OrderStore
+import com.example.knjizara.features.order_management.OrderViewModel
 import com.example.knjizara.networking.apis.AuthApi
 import com.example.knjizara.networking.apis.BookApi
+import com.example.knjizara.networking.apis.OrderApi
 import com.example.knjizara.networking.createHttpClient
 import com.example.knjizara.ui.StartupViewModel
 import org.koin.compose.viewmodel.dsl.viewModelOf
@@ -23,10 +27,12 @@ val sharedModule = module {
     single<TokenStorage> { TokenStorageImpl(get()) }
     single { SessionManager() }
     single { createHttpClient(get(), get()) }
+    single { OrderStore() }
     viewModelOf(::StartupViewModel)
 
+
     single { AuthApi(get()) }
-    single { AuthRepository(get(), get(), get()) }
+    single { AuthRepository(get(), get(), get(), get()) }
     viewModelOf(::LoginViewModel)
     viewModelOf(::RegisterViewModel)
 
@@ -34,4 +40,8 @@ val sharedModule = module {
     single { BookRepository(get()) }
     viewModelOf(::BookViewModel)
     viewModelOf(::AdminBookViewModel)
+
+    single { OrderApi(get()) }
+    single { OrderRepository(get())}
+    viewModelOf(::OrderViewModel)
 }
