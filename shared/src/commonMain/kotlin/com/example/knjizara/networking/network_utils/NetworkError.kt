@@ -8,6 +8,7 @@ sealed interface NetworkError : Error {
     data class HttpError(
         val code: Int,
         val serverMessage: String? = null,
-        val errorCode: String? = null
+        val errorCode: String? = null,
+        val errors: Map<String, String>? = null
     ) : NetworkError
 }

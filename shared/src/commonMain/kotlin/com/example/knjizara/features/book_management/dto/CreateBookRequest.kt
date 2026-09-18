@@ -9,5 +9,6 @@ data class CreateBookRequest(
     val isbn: String,
     val publishedYear: Int,
     val availableCopies: Int,
-    val price: Double
+    val price: Double,
+    val description: String
 )

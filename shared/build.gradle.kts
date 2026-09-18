@@ -75,6 +75,8 @@ kotlin {
             implementation(libs.kotlinx.datetime)
 
             implementation(libs.kermit)
+
+            implementation(libs.material.icons.core)
         }
 
         nativeMain.dependencies {

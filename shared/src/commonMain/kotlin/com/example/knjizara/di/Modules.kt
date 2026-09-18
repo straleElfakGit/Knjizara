@@ -8,6 +8,7 @@ import com.example.knjizara.features.auth.token_manager.TokenStorage
 import com.example.knjizara.features.auth.token_manager.TokenStorageImpl
 import com.example.knjizara.features.book_management.AdminBookViewModel
 import com.example.knjizara.features.book_management.BookRepository
+import com.example.knjizara.features.book_management.BookStore
 import com.example.knjizara.features.book_management.BookViewModel
 import com.example.knjizara.features.order_management.OrderRepository
 import com.example.knjizara.features.order_management.OrderStore
@@ -28,8 +29,8 @@ val sharedModule = module {
     single { SessionManager() }
     single { createHttpClient(get(), get()) }
     single { OrderStore() }
+    single { BookStore() }
     viewModelOf(::StartupViewModel)
-
 
     single { AuthApi(get()) }
     single { AuthRepository(get(), get(), get(), get()) }

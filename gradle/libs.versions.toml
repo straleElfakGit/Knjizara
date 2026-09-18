@@ -27,6 +27,8 @@ napier = "2.7.1"
 datetime = "0.6.1"
 kermit = "2.0.4"
 
+materialIconsCore = "1.7.3"
+
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
@@ -70,6 +72,8 @@ multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", vers
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
 napier = { module = "io.github.aakira:napier", version.ref = "napier" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+
+material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "materialIconsCore" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

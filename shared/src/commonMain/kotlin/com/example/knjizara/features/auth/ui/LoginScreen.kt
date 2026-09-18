@@ -86,7 +86,7 @@ fun LoginScreen(
             CustomTextField(
                 value = email,
                 onValueChange = { loginViewModel.onEmailChange(it) },
-                label = "Korisničko ime",
+                label = "E-mail",
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
 

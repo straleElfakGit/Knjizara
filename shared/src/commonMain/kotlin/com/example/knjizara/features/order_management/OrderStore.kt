@@ -1,5 +1,6 @@
 package com.example.knjizara.features.order_management
 
+import com.example.knjizara.features.book_management.dto.BookDto
 import com.example.knjizara.features.order_management.dto.OrderDto
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,5 +17,21 @@ class OrderStore {
 
     fun addOrder(order: OrderDto) {
         _myOrders.update { current -> listOf(order) + current }
+    }
+
+    fun updateBook(updatedBook: BookDto) {
+        _myOrders.update { currentOrders ->
+            currentOrders.map { order ->
+                if (order.book.id == updatedBook.id) {
+                    order.copy(book = updatedBook)
+                } else {
+                    order
+                }
+            }
+        }
+    }
+
+    fun clear() {
+        _myOrders.value = emptyList()
     }
 }

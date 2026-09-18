@@ -18,11 +18,10 @@ import kotlinx.coroutines.launch
 
 class BookViewModel(
     private val bookRepository: BookRepository,
+    private val bookStore: BookStore,
     private val orderStore: OrderStore
 ): ViewModel() {
-    private val _bookList: MutableStateFlow<List<BookWithDescriptionDto>> =
-        MutableStateFlow(listOf())
-    val bookList: StateFlow<List<BookWithDescriptionDto>> = _bookList.asStateFlow()
+    val bookList: StateFlow<List<BookWithDescriptionDto>> = bookStore.books
 
     private val _selectedBook = MutableStateFlow<BookWithDescriptionDto?>(null)
     val selectedBook: StateFlow<BookWithDescriptionDto?> = _selectedBook.asStateFlow()
@@ -63,8 +62,8 @@ class BookViewModel(
 
             bookRepository.searchByTitle(title)
                 .onSuccess { books ->
-                    _bookList.value = books.map { BookWithDescriptionDto(book = it) }
-                    Logger.d("Broj knjiga: ${_bookList.value.size}")
+                    bookStore.setBooks(books)
+                    Logger.d("Broj knjiga: ${books.size}")
                 }
                 .onError { error -> _error.value = error.toSearchBookByTitleMessage() }
 
@@ -75,7 +74,7 @@ class BookViewModel(
 
     fun byBook(isbn: String) {
         if (isbn.isBlank()) {
-            _error.value = "Unesite naziv knjige"
+            _buyBookMessage.value = "Unesite isbn knjige"
             return
         }
 
@@ -87,17 +86,7 @@ class BookViewModel(
             bookRepository.buyBook(isbn)
                 .onSuccess { order->
                     orderStore.addOrder(order)
-
-                    _bookList.value = _bookList.value.map { item ->
-                        if (item.book.isbn == isbn) {
-                            val updatedBook = item.book.copy(
-                                availableCopies = (item.book.availableCopies - 1).coerceAtLeast(0)
-                            )
-                            item.copy(book = updatedBook)
-                        } else {
-                            item
-                        }
-                    }
+                    bookStore.decrementAvailableCopies(isbn)
 
                     _selectedBook.value?.let { current ->
                         if (current.book.isbn == isbn) {
@@ -111,8 +100,7 @@ class BookViewModel(
                     _buyBookMessage.value = "Knjiga je uspešno kupljena!"
                 }
                 .onError { error ->
-                    _error.value = error.toByBookMessage()
-                    _buyBookMessage.value = "Nije uspela kupovina knjige: ${_error.value}"
+                    _buyBookMessage.value = "Nije uspela kupovina knjige: ${error.toByBookMessage()}"
                 }
 
             _isBookBuyLoading.value = false
@@ -137,9 +125,7 @@ class BookViewModel(
                 .onSuccess { response ->
                     val updatedBookWithDesc = bookItem.copy(description = response.description)
                     _selectedBook.value = updatedBookWithDesc
-                    _bookList.value = _bookList.value.map { item ->
-                        if (item.book.id == bookItem.book.id) updatedBookWithDesc else item
-                    }
+                    bookStore.updateBookDescription(bookItem.book.id, response.description)
                 }
                 .onError { error -> _error.value = error.toFindByIdMessage() }
 
@@ -158,8 +144,8 @@ class BookViewModel(
 
             bookRepository.findBooks(page, size, sort)
                 .onSuccess { response ->
-                    _bookList.value = response.content.map { BookWithDescriptionDto(book = it) }
-                    Logger.d("Broj knjiga: ${_bookList.value.size}")
+                    bookStore.setBooks(response.content)
+                    Logger.d("Broj knjiga: ${response.content.size}")
                 }
                 .onError { error -> _error.value = error.toFindBooksMessage() }
 

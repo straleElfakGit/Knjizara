@@ -85,7 +85,7 @@ fun HomeScreen(
                 .padding(innerPadding)
         ) {
             when (selectedTab) {
-                HomeTab.BOOKS -> BookScreen(bookViewModel, user.role == UserRole.ADMIN)
+                HomeTab.BOOKS -> BookScreen(bookViewModel, isAdmin = user.role == UserRole.ADMIN)
                 HomeTab.ORDERS -> OrdersScreen(viewModel = orderViewModel, user.role == UserRole.ADMIN)
                 HomeTab.PROFILE -> ProfileScreen(user = user, onLogout = onLogout)
             }

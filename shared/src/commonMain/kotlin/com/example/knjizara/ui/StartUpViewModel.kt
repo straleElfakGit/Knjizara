@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.example.knjizara.features.auth.AuthRepository
+import com.example.knjizara.features.book_management.BookStore
+import com.example.knjizara.features.order_management.OrderStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +18,9 @@ sealed interface StartupState {
 }
 
 class StartupViewModel(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val bookStore: BookStore,
+    private val orderStore: OrderStore
 ) : ViewModel() {
     private val _state = MutableStateFlow<StartupState>(StartupState.Loading)
     val state: StateFlow<StartupState> = _state.asStateFlow()
@@ -36,6 +40,8 @@ class StartupViewModel(
         viewModelScope.launch {
             authRepository.logout()
             _state.value = StartupState.Unauthenticated
+            bookStore.clear()
+            orderStore.clear()
         }
     }
 }

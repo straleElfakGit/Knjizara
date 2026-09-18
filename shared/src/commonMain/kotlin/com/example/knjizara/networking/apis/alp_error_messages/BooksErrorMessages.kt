@@ -58,6 +58,7 @@ fun NetworkError.toDeleteBookMessage(): String = toErrorMessage { http ->
         400 -> "Loš zahtev upućen ka serveru"
         403 -> "Niste autorizovani da obavite ovu aktivnost"
         404 -> "Ne postoji knjiga sa ovim id-jem"
+        409 -> "Ova knjiga je kupljena, ne može da se izbaci iz baze"
         else -> "Greška, pokušajte ponovo, kod: ${http.code}"
     }
 }
